@@ -1,0 +1,30 @@
+{
+  "name": "Chat_Bot",
+  "version": "1.0.0",
+  "description": "This my new test chat bot",
+  "main": "bot.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "bot": "nodemon bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redavillm/chatbot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/redavillm/chatbot/issues"
+  },
+  "homepage": "https://github.com/redavillm/chatbot#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "node-telegram-bot-api": "^0.56.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
