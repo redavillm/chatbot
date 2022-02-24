@@ -17,8 +17,8 @@ const list = (bot, chatId) => {
 const choise = (bot, chatId, [roomId]) => {
   addUser(chatId, +roomId);
   const room = findRoomByUserId(chatId);
-  bot.sendMessage(chatId, `Вы вошли в комнату ${room.subject}`);
-  addLog(room.id, `Пользователь ${findUserNicName(chatId)} вошел в комнату.`);
+  bot.sendMessage(chatId, `Вы вошли в комнату ${room.subject}!!!`);
+  addLog(room.id, `Пользователь ${findUserNicName(chatId)} вошел в комнату!`);
 };
 
 const exit = (bot, chatId) => {

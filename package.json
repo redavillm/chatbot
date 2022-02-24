@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "bot": "nodemon bot.js"
+    "bot": "nodemon bot.js",
+    "start": "node bot.js"
   },
   "repository": {
     "type": "git",
