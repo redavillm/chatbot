@@ -7,6 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
+    "dev": "nodemon app.js",
     "bot": "nodemon bot.js",
     "start": "node bot.js"
   },
@@ -23,6 +24,8 @@
   "homepage": "https://github.com/redavillm/chatbot#readme",
   "dependencies": {
     "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.9",
     "node-telegram-bot-api": "^0.56.0"
   },
   "devDependencies": {

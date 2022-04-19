@@ -8,17 +8,38 @@ const {
   addLog,
   settingName,
   findUserNicName,
+  banUser,
+  getNicName,
+  formatRoomButtoms,
+  getInfoButtons,
+  checkBan,
 } = require("../lib/rooms");
 
 const list = (bot, chatId) => {
-  bot.sendMessage(chatId, formatRooms(getRooms()));
+  try {
+    bot.sendMessage(chatId, "Выберите комнату", formatRoomButtoms(getRooms()));
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-const choise = (bot, chatId, [roomId]) => {
-  addUser(chatId, +roomId);
+const choise = async (bot, chatId, [roomId]) => {
+  // console.log(checkBan(chatId));
+  if (checkBan(chatId) === 1) {
+    bot.sendMessage(chatId, `Вы забанены.`);
+    return;
+  }
+  const success = await addUser(chatId, +roomId);
+  if (!success) {
+    return bot.sendMessage(chatId, "Вы уже в комнате!");
+  }
   const room = findRoomByUserId(chatId);
-  bot.sendMessage(chatId, `Вы вошли в комнату ${room.subject}!!!`);
-  addLog(room.id, `Пользователь ${findUserNicName(chatId)} вошел в комнату!`);
+  bot.sendMessage(
+    chatId,
+    `Вы вошли в комнату ${room.subject}, под именем ${getNicName(chatId)}`,
+    getInfoButtons()
+  );
+  await addLog(room.id, `Пользователь ${getNicName(chatId)} вошел в комнату.`);
 };
 
 const exit = (bot, chatId) => {
@@ -33,16 +54,17 @@ const exit = (bot, chatId) => {
   }
 };
 
-const history = (bot, chatId, [count]) => {
+const history = async (bot, chatId, [count]) => {
   const room = findRoomByUserId(chatId);
   if (!room) {
     bot.sendMessage(chatId, "Вы не в комнате!");
   } else {
+    const messages = await showLogs(room.id, count);
     bot.sendMessage(
       chatId,
-      `Список сообщений:\n ${showLogs(room.id, count)
+      `Список сообщений:\n ${messages
         .map((log) => {
-          return `${log.name}: ${log.message}`;
+          return `${getNicName(log.user_id)}: ${log.message}`;
         })
         .join("\n")}`
     );

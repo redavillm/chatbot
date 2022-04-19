@@ -12,10 +12,17 @@ const {
   addLog,
   settingName,
   findUserNicName,
-  banUser
+  banUser,
+  unBanUser,
+  checkBan,
+  getNicName,
 } = require("./lib/rooms");
 
 const RoomController = require("./controllers/Room");
+
+const res = require("express/lib/response");
+
+const User = require("./models/User");
 
 const token = process.env.TOKEN;
 
@@ -37,52 +44,6 @@ bot.onText(/\/room (.+)/, (msg, match) => {
       params.shift();
       RoomController[command](bot, chatId, params);
     }
-
-    // switch (command) {
-    // //   case "list":
-    // //     bot.sendMessage(chatId, formatRooms(getRooms()));
-    // //     break;
-    // //   case "choise": {
-    // //     const [, roomId] = match[1].split(" ");
-    // //     addUser(chatId, +roomId);
-    // //     const room = findRoomByUserId(chatId);
-    // //     bot.sendMessage(chatId, `Вы вошли в комнату ${room.subject}`);
-    // //     addLog(
-    // //       room.id,
-    // //       `Пользователь ${findUserNicName(chatId)} вошел в комнату.`
-    // //     );
-    // //     break;
-    // //   }
-    // //   case "exit": {
-    // //     const room = findRoomByUserId(chatId);
-    // //     if (!room) {
-    // //       bot.sendMessage(chatId, "Вы не в комнате!");
-    // //     } else if (userExit(chatId, room.id)) {
-    // //       bot.sendMessage(chatId, `Вы вышли из комнаты ${room.subject}`);
-    // //       addLog(room.id, `Пользователь ${chatId} вышел из комнаты.`);
-    // //     } else {
-    // //       bot.sendMessage(chatId, "Что-то пошло не так.");
-    // //     }
-    // //     break;
-    // //   }
-    // //   case "history": {
-    // //     const [, count] = match[1].split(" ");
-    // //     const room = findRoomByUserId(chatId);
-    // //     if (!room) {
-    // //       bot.sendMessage(chatId, "Вы не в комнате!");
-    // //     } else {
-    // //       bot.sendMessage(
-    // //         chatId,
-    // //         `Список сообщений:\n ${showLogs(room.id, count)
-    // //           .map((log) => {
-    // //             return `${log.name}: ${log.message}`;
-    // //           })
-    // //           .join("\n")}`
-    // //       );
-    // //     }
-    // //     break;
-    // //   }
-    // }
   } catch (error) {
     console.log(error);
   }
@@ -92,11 +53,10 @@ bot.on("message", (msg) => {
   try {
     const chatId = msg.chat.id;
     const room = findRoomByUserId(chatId);
-    // console.log(room);
     if (msg.text.indexOf("/") !== 0) {
       for (let user of room.users) {
         if (user !== chatId) {
-          bot.sendMessage(user, msg.text);
+          bot.sendMessage(user, `${getNicName(chatId)}: ${msg.text}`);
         }
       }
       addLog(room.id, msg.text, chatId);
@@ -106,7 +66,7 @@ bot.on("message", (msg) => {
   }
 });
 
-bot.onText(/\/set (.+)/, (msg, match) => {
+bot.onText(/\/set (.+)/, async (msg, match) => {
   try {
     const chatId = msg.chat.id;
     const [command] = match[1].split(" ");
@@ -114,7 +74,8 @@ bot.onText(/\/set (.+)/, (msg, match) => {
     switch (command) {
       case "name": {
         const [, name] = match[1].split(" ");
-        settingName(name, chatId);
+        await settingName(name, chatId);
+        bot.sendMessage(chatId, `Ваш никнэйм ${findUserNicName(chatId)}`);
         break;
       }
     }
@@ -123,3 +84,29 @@ bot.onText(/\/set (.+)/, (msg, match) => {
     console.log(error);
   }
 });
+
+bot.onText(/\/start/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const user = await User.findOne({ chat_id: chatId });
+  if (!user) {
+    const createdUser = new User({
+      chat_id: chatId,
+      name: "anonymous",
+    });
+    await createdUser.save();
+  }
+  bot.sendMessage(chatId, "Справка по боту");
+});
+
+bot.on("callback_query", (msg) => {
+  const data = msg.data;
+  const chatId = msg.message.chat.id;
+  const [controller, command, params] = data.split(":");
+  if (controller === "r") {
+    if (RoomController[command]) {
+      RoomController[command](bot, chatId, params);
+    }
+  }
+});
+
+module.exports = { bot };
