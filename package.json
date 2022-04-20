@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon app.js",
     "bot": "nodemon bot.js",
-    "start": "node bot.js"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
