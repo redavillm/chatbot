@@ -13,6 +13,7 @@ const {
   formatRoomButtoms,
   getInfoButtons,
   checkBan,
+  formatUsersButtons,
 } = require("../lib/rooms");
 
 const list = (bot, chatId) => {
@@ -43,7 +44,7 @@ const list = (bot, chatId) => {
 // };
 
 const choise = async (bot, chatId, [roomId]) => {
-  console.log(checkBan(chatId));
+  // console.log(checkBan(chatId));
   if (checkBan(chatId) === 1) {
     bot.sendMessage(chatId, `Вы забанены.`);
     return;
@@ -59,7 +60,7 @@ const choise = async (bot, chatId, [roomId]) => {
   await addUser(chatId, +roomId);
   const room = await findRoomByUserId(chatId);
   bot.sendMessage(
-    chat,
+    chatId,
     `Вы вошли в комнату ${room.subject}, под именем ${getNicName(chatId)}`,
     getInfoButtons()
   );
