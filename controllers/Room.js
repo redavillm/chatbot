@@ -23,32 +23,59 @@ const list = (bot, chatId) => {
   }
 };
 
+// const choise = async (bot, chatId, [roomId]) => {
+//   console.log(checkBan(chatId));
+//   if (checkBan(chatId) === 1) {
+//     bot.sendMessage(chatId, `Вы забанены.`);
+//     return;
+//   }
+//   const success = await addUser(chatId, +roomId);
+//   if (!success) {
+//     return bot.sendMessage(chatId, "Вы уже в комнате!");
+//   }
+//   const room = findRoomByUserId(chatId);
+//   bot.sendMessage(
+//     chatId,
+//     `Вы вошли в комнату ${room.subject}, под именем ${getNicName(chatId)}`,
+//     getInfoButtons()
+//   );
+//   await addLog(room.id, `Пользователь ${getNicName(chatId)} вошел в комнату.`);
+// };
+
 const choise = async (bot, chatId, [roomId]) => {
-  // console.log(checkBan(chatId));
+  console.log(checkBan(chatId));
   if (checkBan(chatId) === 1) {
     bot.sendMessage(chatId, `Вы забанены.`);
     return;
   }
-  const success = await addUser(chatId, +roomId);
-  if (!success) {
-    return bot.sendMessage(chatId, "Вы уже в комнате!");
+  const currentRoom = await findRoomByUserId(chatId);
+  if (!!currentRoom) {
+    if (currentRoom.id === +roomId) {
+      return bot.sendMessage(chatId, "Вы уже в комнате!");
+    } else {
+      await exit(bot, chatId);
+    }
   }
-  const room = findRoomByUserId(chatId);
+  await addUser(chatId, +roomId);
+  const room = await findRoomByUserId(chatId);
   bot.sendMessage(
-    chatId,
+    chat,
     `Вы вошли в комнату ${room.subject}, под именем ${getNicName(chatId)}`,
     getInfoButtons()
   );
   await addLog(room.id, `Пользователь ${getNicName(chatId)} вошел в комнату.`);
 };
 
-const exit = (bot, chatId) => {
-  const room = findRoomByUserId(chatId);
+const exit = async (bot, chatId) => {
+  const room = await findRoomByUserId(chatId);
   if (!room) {
     bot.sendMessage(chatId, "Вы не в комнате!");
   } else if (userExit(chatId, room.id)) {
     bot.sendMessage(chatId, `Вы вышли из комнаты ${room.subject}`);
-    addLog(room.id, `Пользователь ${chatId} вышел из комнаты.`);
+    await addLog(
+      room.id,
+      `Пользователь ${getNicName(chatId)} вышел из комнаты.`
+    );
   } else {
     bot.sendMessage(chatId, "Что-то пошло не так.");
   }
@@ -71,9 +98,45 @@ const history = async (bot, chatId, [count]) => {
   }
 };
 
+const info = async (bot, chatId) => {
+  const room = findRoomByUserId(chatId);
+  // const usersByRoom = getUsersByRoom();
+  const usersArr = room.users.filter((userId) => userId !== chatId);
+  if (!room) {
+    return bot.sendMessage(chatId, "Вы не в комнате!");
+  }
+  bot.sendMessage(chatId, `${room.subject}`);
+  bot.sendMessage(
+    chatId,
+    `Список пользователей: `,
+    formatUsersButtons(usersArr)
+  );
+};
+
+const users = async (bot, chatId) => {
+  try {
+    const room = findRoomByUserId(chatId);
+    const usersArr = room.users.filter((userId) => userId !== chatId);
+    bot.sendMessage(
+      chatId,
+      `Список пользователей: `,
+      formatUsersButtons(usersArr)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const user = async (bot, chatId, userId) => {
+  bot.sendMessage(chatId, `${getNicName(userId)}`);
+};
+
 module.exports = {
   list,
   choise,
   exit,
   history,
+  info,
+  users,
+  user,
 };

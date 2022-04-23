@@ -36,7 +36,6 @@ const bot = new TelegramBot(token, { polling: true });
 bot.onText(/\/room (.+)/, (msg, match) => {
   try {
     const chatId = msg.chat.id;
-    // console.log(match[1]);
     const [command] = match[1].split(" ");
 
     if (RoomController[command]) {
