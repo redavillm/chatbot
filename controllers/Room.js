@@ -1,19 +1,16 @@
 const {
-  formatRooms,
   getRooms,
   addUser,
   userExit,
   findRoomByUserId,
   showLogs,
   addLog,
-  settingName,
-  findUserNicName,
-  banUser,
   getNicName,
   formatRoomButtoms,
   getInfoButtons,
   checkBan,
   formatUsersButtons,
+  getDescription,
 } = require("../lib/rooms");
 
 const list = (bot, chatId) => {
@@ -44,7 +41,6 @@ const list = (bot, chatId) => {
 // };
 
 const choise = async (bot, chatId, [roomId]) => {
-  // console.log(checkBan(chatId));
   if (checkBan(chatId) === 1) {
     bot.sendMessage(chatId, `Вы забанены.`);
     return;
@@ -106,7 +102,7 @@ const info = async (bot, chatId) => {
   if (!room) {
     return bot.sendMessage(chatId, "Вы не в комнате!");
   }
-  bot.sendMessage(chatId, `${room.subject}`);
+  bot.sendMessage(chatId, `Вы находитесь в комнате: ${room.subject}`);
   bot.sendMessage(
     chatId,
     `Список пользователей: `,
@@ -129,7 +125,7 @@ const users = async (bot, chatId) => {
 };
 
 const user = async (bot, chatId, userId) => {
-  bot.sendMessage(chatId, `${getNicName(userId)}`);
+  bot.sendMessage(chatId, `${getDescription(userId)}`);
 };
 
 module.exports = {
