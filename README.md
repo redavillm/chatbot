@@ -1,2 +1,2 @@
 # chatbot
-This my new test chat bot
+Bot for communication in rooms of interest.
